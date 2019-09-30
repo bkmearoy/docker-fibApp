@@ -1,0 +1,34 @@
+#travis.yml file
+#-----------------
+#1. Spicify docker as a dependency 
+#2. Build test version of React project
+#3. Run tests 
+#4. Build production versions of all projects 
+#5. Push all to docker hub 
+#6. Tell Elastic Beanstalk to update
+
+sudo: required
+services:
+   - docker
+
+before_install:
+   - docker build -t bkmearoy/react-test -f ./client/Dockerfile.dev .
+  
+
+script:
+   - docker run bkmearoy/react-test npm test -- -- coverage
+
+after_success:
+   - docker build -t bkemaroy/multi-client ./client
+   - docker build -t bkmearoy/multi-nginx ./nginx
+   - docker build -t bkmearoy/multi-server ./server
+   - docker build -t bkmearoy/multi-worker ./worker
+
+# Log in to docker CLI 
+   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+#Take those images and push them to docker hub 
+   - docker push  bkemaroy/multi-client
+   - docker push  bkmearoy/multi-nginx
+   - docker push  bkmearoy/multi-server
+   - docker push  bkmearoy/multi-worker
