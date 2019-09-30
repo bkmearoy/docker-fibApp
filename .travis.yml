@@ -16,7 +16,7 @@ before_install:
   
 
 script:
-   - docker run bkmearoy/react-test npm test -- -- coverage
+   - docker run -e CI=true bkmearoy/react-test npm test 
 
 after_success:
    - docker build -t bkemaroy/multi-client ./client
